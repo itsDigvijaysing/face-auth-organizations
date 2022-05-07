@@ -22,8 +22,8 @@ function App() {
     [webcamRef]
   );
 
-  const [email, setEmail] = useState("");
-  const [token, setToken] = useState("");
+  // const [email, setEmail] = useState("");
+  // const [token, setToken] = useState("");
   const [alert, setAlert] = useState(false);
   const [user, setUser] = useState(false);
   let org = "6263f84682fc0d9851d827f8";
@@ -33,10 +33,14 @@ function App() {
     status: "success",
   });
 
+  const email = useRef(null);
+  const token = useRef(null)
 
   const checkUserEmail = async () => {
 
-    const data = await axios.post('http://localhost:5000/login-req', { "email": email, "organization": org });
+    // console.log(textInput.current.value)
+
+    const data = await axios.post('http://localhost:5000/login-req', { "email": email.current.value, "organization": org });
     console.log(data.data)
     if (typeof data.data === "number") {
       setAlertMessage({ message: "Email verified.", status: "success" })
@@ -51,22 +55,28 @@ function App() {
 
   const getUserData = async () => {
 
+    if (email.current.value === "" || token.current.value === "" || image === "") {
+      setAlertMessage({ message: "Fill All the data", status: "warning" })
+      setAlert(true);
+      return;
+    }
+
     var ImageURL = image; // 'photo' is your base64 image
     var block = ImageURL.split(";");
     var contentType = block[0].split(":")[1]; // In this case "image/gif"
     var realData = block[1].split(",")[1];
     var blob = b64toBlob(realData, contentType);
-
+    console.log(blob, ImageURL)
     const formData = new FormData();
     formData.append("file", blob);
-    formData.append("email", email);
+    formData.append("email", email.current.value);
     formData.append("organization", org);
-    formData.append("token", token);
+    formData.append("token", token.current.value);
 
     const data = await axios.post("http://localhost:5000/login", formData);
     console.log(data);
     setImage("");
-    setEmail("");
+    // setEmail("");
 
     if (Object.keys(data.data).length > 1) {
       setAlertMessage({ message: "Login Successfull", status: "success" })
@@ -128,7 +138,7 @@ function App() {
             </h2>
           </header>
           <div className="card-content">
-            <input value={email} onChange={(e) => setEmail(e.target.value)} className="input is-danger is-medium my-2" type="email" placeholder="Email"></input>
+            <input ref={email} className="input is-danger is-medium my-2" type="email" placeholder="Email"></input>
             <div>
               {
                 emailVerfiy &&
@@ -179,7 +189,7 @@ function App() {
               }
             </div>
             {
-              emailVerfiy ? <input value={token} onChange={(e) => setToken(e.target.value)} className="input is-danger is-medium my-2" type="number" placeholder="Token"></input> : ""
+              emailVerfiy ? <input ref={token} className="input is-danger is-medium my-2" type="number" placeholder="Token"></input> : ""
             }
             <div style={{ display: 'flex', justifyContent: 'center' }}>
               {emailVerfiy ? <button onClick={() => getUserData()} className="button is-danger my-2">Submit</button> : <button onClick={() => checkUserEmail()} className="button is-danger my-2">Verify</button>}
