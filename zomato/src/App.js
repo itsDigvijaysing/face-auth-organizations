@@ -1,32 +1,28 @@
-import logo from './logo.svg';
-import './App.css';
+import logo from "./logo.svg";
+import "./App.css";
 import Webcam from "react-webcam";
-import React, { useState, useEffect, useRef } from 'react'
-import axios from 'axios'
+import React, { useState, useEffect, useRef } from "react";
+import axios from "axios";
 
 const videoConstraints = {
   width: 1280,
   height: 720,
-  facingMode: "user"
+  facingMode: "user",
 };
-
 
 function App() {
   const webcamRef = useRef(null);
   const [image, setImage] = useState("");
-  const capture = React.useCallback(
-    () => {
-      const imageSrc = webcamRef.current.getScreenshot();
-      setImage(imageSrc);
-    },
-    [webcamRef]
-  );
+  const capture = React.useCallback(() => {
+    const imageSrc = webcamRef.current.getScreenshot();
+    setImage(imageSrc);
+  }, [webcamRef]);
 
   // const [email, setEmail] = useState("");
   // const [token, setToken] = useState("");
   const [alert, setAlert] = useState(false);
   const [user, setUser] = useState(false);
-  let org = "6263f84682fc0d9851d827f8";
+  let org = "6276c5e26674d36612538ab5";
   const [emailVerfiy, setEmailVerify] = useState(false);
   const [alertMessage, setAlertMessage] = useState({
     message: "This is test MESSAGE",
@@ -34,29 +30,33 @@ function App() {
   });
 
   const email = useRef(null);
-  const token = useRef(null)
+  const token = useRef(null);
 
   const checkUserEmail = async () => {
-
     // console.log(textInput.current.value)
 
-    const data = await axios.post('http://localhost:5000/login-req', { "email": email.current.value, "organization": org });
-    console.log(data.data)
+    const data = await axios.post("http://localhost:5000/login-req", {
+      email: email.current.value,
+      organization: org,
+    });
+    console.log(data.data);
     if (typeof data.data === "number") {
-      setAlertMessage({ message: "Email verified.", status: "success" })
+      setAlertMessage({ message: "Email verified.", status: "success" });
       setAlert(true);
       setEmailVerify(true);
     } else {
-      setAlertMessage({ message: "Something went wrong", status: "danger" })
+      setAlertMessage({ message: "Something went wrong", status: "danger" });
       setAlert(true);
     }
-
-  }
+  };
 
   const getUserData = async () => {
-
-    if (email.current.value === "" || token.current.value === "" || image === "") {
-      setAlertMessage({ message: "Fill All the data", status: "warning" })
+    if (
+      email.current.value === "" ||
+      token.current.value === "" ||
+      image === ""
+    ) {
+      setAlertMessage({ message: "Fill All the data", status: "warning" });
       setAlert(true);
       return;
     }
@@ -66,7 +66,7 @@ function App() {
     var contentType = block[0].split(":")[1]; // In this case "image/gif"
     var realData = block[1].split(",")[1];
     var blob = b64toBlob(realData, contentType);
-    console.log(blob, ImageURL)
+    console.log(blob, ImageURL);
     const formData = new FormData();
     formData.append("file", blob);
     formData.append("email", email.current.value);
@@ -79,23 +79,21 @@ function App() {
     // setEmail("");
 
     if (Object.keys(data.data).length > 1) {
-      setAlertMessage({ message: "Login Successfull", status: "success" })
+      setAlertMessage({ message: "Login Successfull", status: "success" });
       setAlert(true);
       sessionStorage.setItem("user_id", data.data.company_id);
-      sessionStorage.setItem('name', data.data.name);
-      sessionStorage.setItem('email', data.data.email);
-      sessionStorage.setItem('phone', data.data.phone);
+      sessionStorage.setItem("name", data.data.name);
+      sessionStorage.setItem("email", data.data.email);
+      sessionStorage.setItem("phone", data.data.phone);
 
       setUser(true);
     } else {
       setAlertMessage({ message: data.data.data, status: "warning" });
       setAlert(true);
     }
-
-  }
+  };
 
   function User() {
-
     return (
       <>
         <div className="card">
@@ -107,41 +105,43 @@ function App() {
           <div className="card-content">
             <div className="media">
               <div className="media-content">
-                <p className="title is-4">{sessionStorage.getItem('name')}</p>
+                <p className="title is-4">{sessionStorage.getItem("name")}</p>
               </div>
             </div>
 
             <div className="content">
               <div>
-                <strong>Email</strong> :-  {sessionStorage.getItem('email')}
+                <strong>Email</strong> :- {sessionStorage.getItem("email")}
               </div>
               <div>
-                <strong>Phone</strong> :-  {sessionStorage.getItem('phone')}
+                <strong>Phone</strong> :- {sessionStorage.getItem("phone")}
               </div>
               <time datetime="2016-1-1">Fri, 29 Apr 2022 20:54:38 GMT</time>
             </div>
           </div>
         </div>
       </>
-    )
-
+    );
   }
 
   function Login() {
-
     return (
       <>
-        <div className="card">
+        <div className="card" style={{ margin: 30 }}>
           <header className="card-header">
-            <h2 className="card-header-title" style={{ textAlign: 'center' }} >
+            <h2 className="card-header-title" style={{ textAlign: "center" }}>
               Login
             </h2>
           </header>
           <div className="card-content">
-            <input ref={email} className="input is-danger is-medium my-2" type="email" placeholder="Email"></input>
+            <input
+              ref={email}
+              className="input is-danger is-medium my-2"
+              type="email"
+              placeholder="Email"
+            ></input>
             <div>
-              {
-                emailVerfiy &&
+              {emailVerfiy && (
                 <>
                   {image === "" ? (
                     <Webcam
@@ -153,14 +153,10 @@ function App() {
                       videoConstraints={videoConstraints}
                     />
                   ) : (
-                    <img
-                      src={image}
-                      alt="sadsad"
-                      id="limage"
-                    />
+                    <img src={image} alt="sadsad" id="limage" />
                   )}
 
-                  <div style={{ display: 'flex', justifyContent: 'center' }}>
+                  <div style={{ display: "flex", justifyContent: "center" }}>
                     {image !== "" ? (
                       <button
                         type="button"
@@ -186,40 +182,67 @@ function App() {
                     )}
                   </div>
                 </>
-              }
+              )}
             </div>
-            {
-              emailVerfiy ? <input ref={token} className="input is-danger is-medium my-2" type="number" placeholder="Token"></input> : ""
-            }
-            <div style={{ display: 'flex', justifyContent: 'center' }}>
-              {emailVerfiy ? <button onClick={() => getUserData()} className="button is-danger my-2">Submit</button> : <button onClick={() => checkUserEmail()} className="button is-danger my-2">Verify</button>}
+            {emailVerfiy ? (
+              <input
+                ref={token}
+                className="input is-danger is-medium my-2"
+                type="number"
+                placeholder="Token"
+              ></input>
+            ) : (
+              ""
+            )}
+            <div style={{ display: "flex", justifyContent: "center" }}>
+              {emailVerfiy ? (
+                <button
+                  onClick={() => getUserData()}
+                  className="button is-danger my-2"
+                >
+                  Submit
+                </button>
+              ) : (
+                <button
+                  onClick={() => checkUserEmail()}
+                  className="button is-danger my-2"
+                >
+                  Verify
+                </button>
+              )}
             </div>
           </div>
         </div>
       </>
-    )
-
+    );
   }
 
-
   useEffect(() => {
-
-    if (sessionStorage.getItem('user_id')) {
+    if (sessionStorage.getItem("user_id")) {
       setUser(true);
     }
-
   }, [user]);
-
 
   return (
     <>
-      <nav className="navbar container is-max-desktop" style={{ height: '100px' }} role="navigation" aria-label="main navigation">
+      <nav
+        className="navbar container is-max-desktop"
+        style={{ height: "100px" }}
+        role="navigation"
+        aria-label="main navigation"
+      >
         <div className="navbar-brand">
           <a className="navbar-item" href="#">
             <img src="/Zomato-logo.png" width="100px" height="108px" />
           </a>
 
-          <a role="button" className="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+          <a
+            role="button"
+            className="navbar-burger"
+            aria-label="menu"
+            aria-expanded="false"
+            data-target="navbarBasicExample"
+          >
             <span aria-hidden="true"></span>
             <span aria-hidden="true"></span>
             <span aria-hidden="true"></span>
@@ -230,50 +253,87 @@ function App() {
           <div className="navbar-end">
             <div className="navbar-item">
               <div className="buttons">
-                {
-                  user ?
-                    <button onClick={() => { sessionStorage.clear(); setUser(false); }} className="button is-danger">
-                      <strong>Logout</strong>
-                    </button>
-                    :
-                    <button className="button is-primary is-inverted">
-                      <strong>Login With Face Auth</strong>
-                    </button>
-                }
-
+                {user ? (
+                  <button
+                    onClick={() => {
+                      sessionStorage.clear();
+                      setUser(false);
+                    }}
+                    className="button is-danger"
+                  >
+                    <strong>Logout</strong>
+                  </button>
+                ) : (
+                  <button className="button is-primary is-inverted">
+                    <strong>Login With Face Auth</strong>
+                  </button>
+                )}
               </div>
             </div>
           </div>
         </div>
       </nav>
 
-      <div className='container columns my-5' style={{ display: "flex", justifyContent: "center" }}>
-        <div className='column is-two-thirds' style={{}}>
-          <img src="/zomato-bike.png" alt="monster" style={{ width: '100%', height: '50vh' }} />
+      <div className="container columns my-5">
+        <div className="column is-two-thirds" style={{}}>
+          <img
+            src="/zomato-bike.png"
+            alt="monster"
+            style={{ width: "100%", height: "50vh" }}
+          />
         </div>
-        <div className='column'>
-          {alert && alertMessage.status === "danger" ? <div className="notification is-danger"><button onClick={() => setAlert(false)} className="delete"></button><strong>Error !</strong>{alertMessage.message}</div> : ""}
-          {alert && alertMessage.status === "success" ? <div className="notification is-success"><button onClick={() => setAlert(false)} className="delete"></button><strong>Sucess ..</strong>{alertMessage.message}</div> : ""}
-          {alert && alertMessage.status === "warning" ? <div className="notification is-warning"><button onClick={() => setAlert(false)} className="delete"></button><strong>Error !</strong>{alertMessage.message}</div> : ""}
+        <div className="column">
+          {alert && alertMessage.status === "danger" ? (
+            <div className="notification is-danger">
+              <button
+                onClick={() => setAlert(false)}
+                className="delete"
+              ></button>
+              <strong>Error !</strong>
+              {alertMessage.message}
+            </div>
+          ) : (
+            ""
+          )}
+          {alert && alertMessage.status === "success" ? (
+            <div className="notification is-success">
+              <button
+                onClick={() => setAlert(false)}
+                className="delete"
+              ></button>
+              <strong>Sucess ..</strong>
+              {alertMessage.message}
+            </div>
+          ) : (
+            ""
+          )}
+          {alert && alertMessage.status === "warning" ? (
+            <div className="notification is-warning">
+              <button
+                onClick={() => setAlert(false)}
+                className="delete"
+              ></button>
+              <strong>Error !</strong>
+              {alertMessage.message}
+            </div>
+          ) : (
+            ""
+          )}
 
-          {
-            user ? <User /> : <Login />
-          }
-
+          {user ? <User /> : <Login />}
         </div>
       </div>
 
       <footer className="footer">
         <div className="content has-text-centered">
           <p>
-            <strong>Zomato with face auth</strong> by <a href="https://maheshgaikwad.me">Monster</a>. Made with React + Bulma Css .
+            <strong>Zomato with face auth</strong> Made with React + Bulma CSS.
           </p>
         </div>
       </footer>
     </>
   );
 }
-
 
 function b64toBlob(b64Data, contentType, sliceSize) {
   contentType = contentType || "";

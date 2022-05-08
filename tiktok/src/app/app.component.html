@@ -1,95 +1,191 @@
 <div>
-
-  <nav style="display: flex; justify-content: space-around; padding-top: 20px;">
-    <img src="/assets/logo.png" alt="" width="300" height="80">
-    <div style="display: flex; justify-content: center; align-items: center;">
-      <button mat-raised-button color="accent" *ngIf="user" (click)="logout()">Logout</button>
-      <button mat-button color="primary" *ngIf="!user">Login with FACE Authentication</button>
+  <nav
+    style="
+      display: flex;
+      justify-content: space-around;
+      flex-direction: column;
+      padding-top: 20px;
+    "
+  >
+    <div style="display: flex; justify-content: center; align-items: center">
+      <img src="/assets/logo.png" alt="" width="300" height="80" />
+    </div>
+    <div style="display: flex; justify-content: center; align-items: center">
+      <button mat-raised-button color="accent" *ngIf="user" (click)="logout()">
+        Logout
+      </button>
+      <button mat-button color="primary" *ngIf="!user">
+        Login with FACE Authentication
+      </button>
     </div>
   </nav>
 
-  <div>
-    <mat-grid-list cols="2">
-      <mat-grid-tile>
-        <mat-card class=" example-card" style="width: 50%;" *ngIf="user">
-          <mat-card-header>
-            <div mat-card-avatar class="example-header-image"></div>
-            <mat-card-title>{{ userInfo.name }}</mat-card-title>
-          </mat-card-header>
-          <img mat-card-image [src]="userInfo.image" alt="Photo of a Shiba Inu">
-          <mat-card-content>
-            <div>
-              <strong>Email </strong> :- {{ userInfo.email }}
-            </div>
-            <br>
-            <div>
-              <strong>Phone </strong> :- {{ userInfo.phone }}
-            </div>
-            <br>
-            <div>
-              {{ userInfo.createdAt }}
-            </div>
-          </mat-card-content>
-        </mat-card>
+  <div class="row">
+    <mat-grid-list [cols]="mybreakpoint">
+      <div class="col s6">
+        <mat-grid-tile>
+          <mat-card
+            class="example-card"
+            style="width: 50%; padding: 25"
+            *ngIf="user"
+          >
+            <mat-card-header>
+              <div mat-card-avatar class="example-header-image"></div>
+              <mat-card-title>{{ userInfo.name }}</mat-card-title>
+            </mat-card-header>
+            <img
+              mat-card-image
+              [src]="userInfo.image"
+              alt="Photo of a Shiba Inu"
+            />
+            <mat-card-content>
+              <div><strong>Email </strong> :- {{ userInfo.email }}</div>
+              <br />
+              <div><strong>Phone </strong> :- {{ userInfo.phone }}</div>
+              <br />
+              <div>
+                {{ userInfo.createdAt }}
+              </div>
+            </mat-card-content>
+          </mat-card>
 
-        <!-- login card -->
-        <mat-card *ngIf="!user">
-          <mat-card-header>
-            <div mat-card-avatar class="example-header-image"></div>
-            <mat-card-title style="font-weight: 900; font-family: monospace;">Login with Face Authentication
-            </mat-card-title>
-          </mat-card-header>
+          <!-- login card -->
+          <mat-card *ngIf="!user">
+            <mat-card-header>
+              <div mat-card-avatar class="example-header-image"></div>
+              <mat-card-title style="font-weight: 900; font-family: monospace"
+                >Login with Face Authentication
+              </mat-card-title>
+            </mat-card-header>
 
-          <mat-form-field class="example-full-width" appearance="fill" style="width: 90%; padding: 10px 20px;">
-            <mat-label>Email</mat-label>
-            <input matInput #email (keyup)="onEmail(email.value)" value={{userEmail}}>
-          </mat-form-field>
-          <div style="display: flex; justify-content: center;" *ngIf="emailVerify">
-            <webcam [height]="200" [width]="500" [trigger]="triggerObservable" (imageCapture)="handleImage($event)"
-              *ngIf="!webcamImage" [allowCameraSwitch]="allowCameraSwitch" [switchCamera]="nextWebcamObservable"
-              [videoOptions]="videoOptions" [imageQuality]="1" (initError)="handleInitError($event)"></webcam>
-            <div class="snapshot" *ngIf="webcamImage">
-              <img [src]="webcamImage.imageAsDataUrl" [width]="355" [height]="200" />
+            <mat-form-field
+              class="example-full-width"
+              appearance="fill"
+              style="width: 90%; padding: 10px 20px"
+            >
+              <mat-label>Email</mat-label>
+              <input
+                matInput
+                #email
+                (keyup)="onEmail(email.value)"
+                value="{{ userEmail }}"
+              />
+            </mat-form-field>
+            <div
+              style="display: flex; justify-content: center"
+              *ngIf="emailVerify"
+            >
+              <webcam
+                [height]="200"
+                [width]="500"
+                [trigger]="triggerObservable"
+                (imageCapture)="handleImage($event)"
+                *ngIf="!webcamImage"
+                [allowCameraSwitch]="allowCameraSwitch"
+                [switchCamera]="nextWebcamObservable"
+                [videoOptions]="videoOptions"
+                [imageQuality]="1"
+                (initError)="handleInitError($event)"
+              ></webcam>
+              <div class="snapshot" *ngIf="webcamImage">
+                <img
+                  [src]="webcamImage.imageAsDataUrl"
+                  [width]="355"
+                  [height]="200"
+                />
+              </div>
+              <button
+                *ngIf="webcamImage"
+                (click)="hideImage()"
+                mat-icon-button
+                color="accent"
+                aria-label="Example icon button with a menu icon"
+              >
+                <mat-icon>camera_alt</mat-icon>
+              </button>
+              <button
+                *ngIf="!webcamImage"
+                mat-icon-button
+                class="actionBtn"
+                (click)="triggerSnapshot()"
+                color="accent"
+                aria-label="Example icon button with a menu icon"
+              >
+                <mat-icon>image</mat-icon>
+              </button>
             </div>
-            <button *ngIf="webcamImage" (click)="hideImage()" mat-icon-button color="accent"
-              aria-label="Example icon button with a menu icon">
-              <mat-icon>camera_alt</mat-icon>
-            </button>
-            <button *ngIf="!webcamImage" mat-icon-button class="actionBtn" (click)="triggerSnapshot();" color="accent"
-              aria-label="Example icon button with a menu icon">
-              <mat-icon>image</mat-icon>
-            </button>
-          </div>
-          <mat-form-field *ngIf="emailVerify" class="example-full-width" appearance="fill"
-            style="width: 90%; padding: 10px 20px;">
-            <mat-label>Token</mat-label>
-            <input type="number" matInput #token (keyup)="onToken(token.value)" value="{{userToken}}">
-          </mat-form-field>
-          <div *ngIf="emailVerify" style="display: flex; justify-content: center; align-items: center;">
-            <button (click)="loginUser()" mat-raised-button color="accent">Submit</button>
-          </div>
-          <div *ngIf="!emailVerify" style="display: flex; justify-content: center; align-items: center;">
-            <button (click)="verifyEmailAddress()" mat-raised-button color="accent">Verify</button>
-          </div>
-        </mat-card>
-      </mat-grid-tile>
-      <mat-grid-tile>
-        <img src="/assets/app.png" alt="">
-      </mat-grid-tile>
+            <mat-form-field
+              *ngIf="emailVerify"
+              class="example-full-width"
+              appearance="fill"
+              style="width: 90%; padding: 10px 20px"
+            >
+              <mat-label>Token</mat-label>
+              <input
+                type="number"
+                matInput
+                #token
+                (keyup)="onToken(token.value)"
+                value="{{ userToken }}"
+              />
+            </mat-form-field>
+            <div
+              *ngIf="emailVerify"
+              style="
+                display: flex;
+                justify-content: center;
+                align-items: center;
+              "
+            >
+              <button (click)="loginUser()" mat-raised-button color="accent">
+                Submit
+              </button>
+            </div>
+            <div
+              *ngIf="!emailVerify"
+              style="
+                display: flex;
+                justify-content: center;
+                align-items: center;
+              "
+            >
+              <button
+                (click)="verifyEmailAddress()"
+                mat-raised-button
+                color="accent"
+              >
+                Verify
+              </button>
+            </div>
+          </mat-card>
+        </mat-grid-tile>
+      </div>
+
+      <div class="col s6">
+        <mat-grid-tile>
+          <img src="/assets/app.png" alt="" style="width: 80%" />
+        </mat-grid-tile>
+      </div>
     </mat-grid-list>
   </div>
 
   <footer>
-    <div style="padding: 10px 0;">
-      <h3 style="text-align: center; font-weight: 500; font-family: monospace; font-size: 20px;">
-        Made with @<a href="https://maheshgaikwad.me" target="_blank">monster</a>
+    <div style="padding: 10px 0">
+      <h3
+        style="
+          text-align: center;
+          font-weight: 500;
+          font-family: monospace;
+          font-size: 20px;
+        "
+      >
+        Made with Angular
       </h3>
     </div>
   </footer>
 
   <h4 *ngIf="errors.length > 0">Messages:</h4>
   <ul *ngFor="let error of errors">
-    <li>{{error | json}}</li>
+    <li>{{ error | json }}</li>
   </ul>
-
 </div>
