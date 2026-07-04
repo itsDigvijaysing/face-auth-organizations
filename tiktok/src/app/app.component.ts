@@ -3,6 +3,7 @@ import { MatGridListModule } from '@angular/material/grid-list';
 import { Subject, Observable, EMPTY } from 'rxjs';
 import { WebcamImage, WebcamInitError, WebcamUtil } from 'ngx-webcam';
 import { LoginService } from './login.service';
+import { environment } from '../environments/environment';
 import {
   MatSnackBar,
   MatSnackBarHorizontalPosition,
@@ -49,7 +50,7 @@ export class AppComponent implements OnInit {
   emailVerify = false;
   userEmail: String = '';
   userToken: Number = 0;
-  organization: string = '6276c5e26674d36612538ab5';
+  organization: string = environment.organizationId;
   imageData: string = '';
   public showWebcam = true;
   public allowCameraSwitch = true;
@@ -108,7 +109,6 @@ export class AppComponent implements OnInit {
       horizontalPosition: this.horizontalPosition,
       verticalPosition: this.verticalPosition,
     });
-    console.info('received webcam image', webcamImage['_imageAsDataUrl']);
     this.imageData = webcamImage['_imageAsDataUrl'];
     this.webcamImage = webcamImage;
   }
@@ -135,16 +135,21 @@ export class AppComponent implements OnInit {
   }
 
   loginUser() {
-    console.log('user login');
-    if (this.userEmail === '' || this.userToken === 0) {
-      this._snackBar.open(`Please fill all data`, 'close', {
+    const tokenValue = Number(this.userToken);
+    if (
+      this.userEmail === '' ||
+      !Number.isFinite(tokenValue) ||
+      tokenValue <= 0 ||
+      !this.imageData
+    ) {
+      this._snackBar.open(`Please fill all data and capture a photo`, 'close', {
         horizontalPosition: this.horizontalPosition,
         verticalPosition: this.verticalPosition,
       });
       return;
     }
 
-    let ImageURL = this.imageData; // 'photo' is your base64 image
+    let ImageURL = this.imageData;
     let block = ImageURL.split(';');
     let contentType = block[0].split(':')[1]; // In this case "image/gif"
     var realData = block[1].split(',')[1];
@@ -154,12 +159,11 @@ export class AppComponent implements OnInit {
 
     data.append('email', String(this.userEmail));
     data.append('organization', String(this.organization));
-    data.append('token', String(this.userToken));
+    data.append('token', String(tokenValue));
     data.append('file', blob);
 
-    this.login.verifyUser(data).subscribe((item: any) => {
-      console.log(item);
-
+    this.login.verifyUser(data).subscribe({
+      next: (item: any) => {
       if (Object.keys(item).length > 2) {
         this._snackBar.open(`Hurray! Login Successfull`, 'close', {
           horizontalPosition: this.horizontalPosition,
@@ -180,8 +184,15 @@ export class AppComponent implements OnInit {
         this.user = true;
         this.userEmail = '';
         this.userToken = 0;
-        this, (this.webcamImage = undefined);
+        this.webcamImage = undefined;
       }
+      },
+      error: () => {
+        this._snackBar.open(`Login failed`, 'close', {
+          horizontalPosition: this.horizontalPosition,
+          verticalPosition: this.verticalPosition,
+        });
+      },
     });
   }
 
@@ -200,13 +211,13 @@ export class AppComponent implements OnInit {
       organization: this.organization,
     };
 
-    this.login.verifyEmailReq(data).subscribe((data) => {
+    this.login.verifyEmailReq(data).subscribe({
+      next: (data) => {
       if (typeof data === 'number') {
         this._snackBar.open(`Token is sended`, 'close', {
           horizontalPosition: this.horizontalPosition,
           verticalPosition: this.verticalPosition,
         });
-        console.log(data);
         this.emailVerify = true;
       } else {
         this._snackBar.open(`Some went wrong`, 'close', {
@@ -215,6 +226,13 @@ export class AppComponent implements OnInit {
         });
         this.userEmail = '';
       }
+      },
+      error: () => {
+        this._snackBar.open(`Email verification failed`, 'close', {
+          horizontalPosition: this.horizontalPosition,
+          verticalPosition: this.verticalPosition,
+        });
+      },
     });
   }
 

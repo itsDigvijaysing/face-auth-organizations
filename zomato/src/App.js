@@ -10,6 +10,10 @@ const videoConstraints = {
   facingMode: "user",
 };
 
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000";
+const ORGANIZATION_ID =
+  process.env.REACT_APP_ORGANIZATION_ID || "6276c5e26674d36612538ab5";
+
 function App() {
   const webcamRef = useRef(null);
   const [image, setImage] = useState("");
@@ -22,7 +26,7 @@ function App() {
   // const [token, setToken] = useState("");
   const [alert, setAlert] = useState(false);
   const [user, setUser] = useState(false);
-  let org = "6276c5e26674d36612538ab5";
+  let org = ORGANIZATION_ID;
   const [emailVerfiy, setEmailVerify] = useState(false);
   const [alertMessage, setAlertMessage] = useState({
     message: "This is test MESSAGE",
@@ -33,19 +37,21 @@ function App() {
   const token = useRef(null);
 
   const checkUserEmail = async () => {
-    // console.log(textInput.current.value)
-
-    const data = await axios.post("http://localhost:5000/login-req", {
-      email: email.current.value,
-      organization: org,
-    });
-    console.log(data.data);
-    if (typeof data.data === "number") {
-      setAlertMessage({ message: "Email verified.", status: "success" });
-      setAlert(true);
-      setEmailVerify(true);
-    } else {
-      setAlertMessage({ message: "Something went wrong", status: "danger" });
+    try {
+      const data = await axios.post(`${API_BASE_URL}/login-req`, {
+        email: email.current.value,
+        organization: org,
+      });
+      if (typeof data.data === "number") {
+        setAlertMessage({ message: "Email verified.", status: "success" });
+        setAlert(true);
+        setEmailVerify(true);
+      } else {
+        setAlertMessage({ message: "Something went wrong", status: "danger" });
+        setAlert(true);
+      }
+    } catch (error) {
+      setAlertMessage({ message: "Unable to verify email", status: "danger" });
       setAlert(true);
     }
   };
@@ -61,34 +67,36 @@ function App() {
       return;
     }
 
-    var ImageURL = image; // 'photo' is your base64 image
-    var block = ImageURL.split(";");
-    var contentType = block[0].split(":")[1]; // In this case "image/gif"
-    var realData = block[1].split(",")[1];
-    var blob = b64toBlob(realData, contentType);
-    console.log(blob, ImageURL);
-    const formData = new FormData();
-    formData.append("file", blob);
-    formData.append("email", email.current.value);
-    formData.append("organization", org);
-    formData.append("token", token.current.value);
+    try {
+      var ImageURL = image;
+      var block = ImageURL.split(";");
+      var contentType = block[0].split(":")[1];
+      var realData = block[1].split(",")[1];
+      var blob = b64toBlob(realData, contentType);
+      const formData = new FormData();
+      formData.append("file", blob);
+      formData.append("email", email.current.value);
+      formData.append("organization", org);
+      formData.append("token", token.current.value);
 
-    const data = await axios.post("http://localhost:5000/login", formData);
-    console.log(data);
-    setImage("");
-    // setEmail("");
+      const data = await axios.post(`${API_BASE_URL}/login`, formData);
+      setImage("");
 
-    if (Object.keys(data.data).length > 1) {
-      setAlertMessage({ message: "Login Successfull", status: "success" });
-      setAlert(true);
-      sessionStorage.setItem("user_id", data.data.company_id);
-      sessionStorage.setItem("name", data.data.name);
-      sessionStorage.setItem("email", data.data.email);
-      sessionStorage.setItem("phone", data.data.phone);
+      if (Object.keys(data.data).length > 1) {
+        setAlertMessage({ message: "Login Successfull", status: "success" });
+        setAlert(true);
+        sessionStorage.setItem("user_id", data.data.company_id);
+        sessionStorage.setItem("name", data.data.name);
+        sessionStorage.setItem("email", data.data.email);
+        sessionStorage.setItem("phone", data.data.phone);
 
-      setUser(true);
-    } else {
-      setAlertMessage({ message: data.data.data, status: "warning" });
+        setUser(true);
+      } else {
+        setAlertMessage({ message: data.data.data, status: "warning" });
+        setAlert(true);
+      }
+    } catch (error) {
+      setAlertMessage({ message: "Login failed", status: "danger" });
       setAlert(true);
     }
   };
@@ -99,7 +107,7 @@ function App() {
         <div className="card">
           <div className="card-image">
             <figure className="image is-4by1">
-              <img src="/zomato-bike.png" alt="Placeholder image" />
+              <img src="/placeholder.svg" alt="Zomato demo banner" />
             </figure>
           </div>
           <div className="card-content">
@@ -188,7 +196,9 @@ function App() {
               <input
                 ref={token}
                 className="input is-danger is-medium my-2"
-                type="number"
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
                 placeholder="Token"
               ></input>
             ) : (
@@ -233,7 +243,7 @@ function App() {
       >
         <div className="navbar-brand">
           <a className="navbar-item" href="#">
-            <img src="/Zomato-logo.png" width="100px" height="108px" />
+            <img src="/placeholder.svg" alt="Zomato demo logo" width="100px" height="108px" />
           </a>
 
           <a
@@ -277,8 +287,8 @@ function App() {
       <div className="container columns my-5">
         <div className="column is-two-thirds" style={{}}>
           <img
-            src="/zomato-bike.png"
-            alt="monster"
+            src="/placeholder.svg"
+            alt="Zomato demo illustration"
             style={{ width: "100%", height: "50vh" }}
           />
         </div>
