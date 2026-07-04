@@ -122,7 +122,9 @@
             >
               <mat-label>Token</mat-label>
               <input
-                type="number"
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
                 matInput
                 #token
                 (keyup)="onToken(token.value)"
